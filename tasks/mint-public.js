@@ -1,21 +1,16 @@
-const { task, types } = require("hardhat/config");
-const { projectContractAddress } = require("./config.json");
+const { task, types } = require('hardhat/config');
+const { projectContractAddress } = require('./config.json');
 
-task("mint-public", "Mint for public")
-  .addOptionalParam(
-    "contractaddress",
-    "The contract address",
-    projectContractAddress,
-    types.string
-  )
-  .addOptionalParam("quantity", "Mint quanty", 1, types.int)
+task('mint-public', 'Mint for public')
+  .addOptionalParam('contractaddress', 'The contract address', projectContractAddress, types.string)
+  .addOptionalParam('quantity', 'Mint quanty', 1, types.int)
   .setAction(async ({ contractaddress, quantity }, { ethers }) => {
-    const nftFactory = await ethers.getContractFactory("ProjectRe");
+    const nftFactory = await ethers.getContractFactory('ProjectRe');
     const nftContract = nftFactory.attach(contractaddress);
 
     const receipt = await (
       await nftContract.publicMint(quantity, {
-        value: ethers.utils.parseEther("1.0"),
+        value: ethers.utils.parseEther('1.0'),
       })
     ).wait();
 
@@ -23,8 +18,5 @@ task("mint-public", "Mint for public")
 
     const totalSupply = await nftContract.totalSupply();
 
-    console.log(
-      "total supply= ",
-      ethers.BigNumber.from(totalSupply).toNumber()
-    );
+    console.log('total supply= ', ethers.BigNumber.from(totalSupply).toNumber());
   });

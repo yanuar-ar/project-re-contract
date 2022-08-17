@@ -5,14 +5,13 @@
 
 pragma solidity >=0.8.0;
 
-import "erc721a/contracts/ERC721A.sol";
+import 'erc721a/contracts/ERC721A.sol';
 import './IERC721Lockable.sol';
 
 /// @title Lockable Extension for ERC721A by ChiruLabs
-/// @dev Check the repo and readme at https://github.com/filmakarov/erc721s 
+/// @dev Check the repo and readme at https://github.com/filmakarov/erc721s
 
 abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
-
     /*///////////////////////////////////////////////////////////////
                             LOCKABLE EXTENSION STORAGE                        
     //////////////////////////////////////////////////////////////*/
@@ -30,9 +29,8 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
 
     function lock(address unlocker, uint256 id) public virtual {
         address tokenOwner = ownerOf(id);
-        require(msg.sender == tokenOwner || isApprovedForAll(tokenOwner, msg.sender)
-        , "NOT_AUTHORIZED");
-        require(unlockers[id] == address(0), "ALREADY_LOCKED"); 
+        require(msg.sender == tokenOwner || isApprovedForAll(tokenOwner, msg.sender), 'NOT_AUTHORIZED');
+        require(unlockers[id] == address(0), 'ALREADY_LOCKED');
         unlockers[id] = unlocker;
         super.approve(unlocker, id); //approve unlocker, so unlocker will be able to transfer
     }
@@ -41,7 +39,7 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
      * @dev Public function to unlock the token. Only the unlocker (stated at the time of locking) can unlock
      */
     function unlock(uint256 id) public virtual {
-        require(msg.sender == unlockers[id], "NOT_UNLOCKER");
+        require(msg.sender == unlockers[id], 'NOT_UNLOCKER');
         unlockers[id] = address(0);
     }
 
@@ -50,8 +48,8 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
      *      address(0) means token is not locked
      *      reverts if token does not exist
      */
-    function getLocked(uint256 tokenId) public virtual view returns (address) {
-        require(_exists(tokenId), "Lockable: locking query for nonexistent token");
+    function getLocked(uint256 tokenId) public view virtual returns (address) {
+        require(_exists(tokenId), 'Lockable: locking query for nonexistent token');
         return unlockers[tokenId];
     }
 
@@ -74,7 +72,7 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
     //////////////////////////////////////////////////////////////*/
 
     function approve(address to, uint256 tokenId) public virtual override {
-        require (getLocked(tokenId) == address(0), "Can not approve locked token");
+        require(getLocked(tokenId) == address(0), 'Can not approve locked token');
         super.approve(to, tokenId);
     }
 
@@ -84,17 +82,15 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
         uint256 startTokenId,
         uint256 quantity
     ) internal virtual override {
-
         super._beforeTokenTransfers(from, to, startTokenId, quantity);
 
         // if it is a Transfer or Burn, we always deal with one token, that is startTokenId
-        if (from != address(0)) { 
+        if (from != address(0)) {
             // token should not be locked or msg.sender should be unlocker to do that
-            require(getLocked(startTokenId) == address(0) || msg.sender == getLocked(startTokenId), "LOCKED");
+            require(getLocked(startTokenId) == address(0) || msg.sender == getLocked(startTokenId), 'LOCKED');
         }
-        
     }
-    
+
     function _afterTokenTransfers(
         address from,
         address to,
@@ -102,7 +98,7 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
         uint256 quantity
     ) internal virtual override {
         // if it is a Transfer or Burn, we always deal with one token, that is startTokenId
-        if (from != address(0)) { 
+        if (from != address(0)) {
             // clear locks
             delete unlockers[startTokenId];
         }
@@ -114,16 +110,7 @@ abstract contract ERC721ALockable is ERC721A, IERC721Lockable {
                               ERC165 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override
-        returns (bool)
-    {
-        return
-            interfaceId == type(IERC721Lockable).interfaceId ||
-            super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC721Lockable).interfaceId || super.supportsInterface(interfaceId);
     }
-
 }
