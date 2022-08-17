@@ -1,0 +1,22 @@
+node_modules
+.env
+coverage
+coverage.json
+typechain
+typechain-types
+cache
+artifacts
+
+#Hardhat files
+cache
+artifacts
+typechain
+.openzeppelin
+# Script output
+logs
+
+# Coverage result files
+coverage/
+coverage.json
+
+abi
