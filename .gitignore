@@ -20,3 +20,5 @@ coverage/
 coverage.json
 
 abi
+
+yarn-error.log
