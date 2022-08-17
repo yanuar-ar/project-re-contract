@@ -1,14 +1,17 @@
 //SPDX-License-Identifier: unlicensed
 
+// Information:
+// ProjectRe.sol uses version of ERC721s: https://github.com/filmakarov/erc721s
+
 pragma solidity ^0.8.15;
 
-import "erc721a/contracts/ERC721A.sol";
+import "./base/ERC721ALockable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
-contract ProjectRe is ERC721A,ERC2981, Ownable {
+contract ProjectRe is ERC721ALockable, ERC2981, Ownable {
 
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant MAX_DEV_MINTS = 100;
@@ -70,7 +73,7 @@ contract ProjectRe is ERC721A,ERC2981, Ownable {
 
     // token URI
     function setBaseURI(string calldata _baseTokenURI) external onlyOwner {
-        baseTokenURI = _baseTokenURI;
+      baseTokenURI = _baseTokenURI;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -111,10 +114,55 @@ contract ProjectRe is ERC721A,ERC2981, Ownable {
         _setDefaultRoyalty(to, amount);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721A, ERC2981) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721ALockable, ERC2981) returns (bool) {
       // IERC165: 0x01ffc9a7, IERC721: 0x80ac58cd, IERC721Metadata: 0x5b5e139f, IERC29081: 0x2a55205a
       return ERC721A.supportsInterface(interfaceId) || ERC2981.supportsInterface(interfaceId);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                            STAKING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+
+    bool public enableStake = false;
+    mapping(uint256 => uint256) public tokensLastStakedAt; // tokenId => timestamp
+
+    function stake(uint256 tokenId) public {
+      require(enableStake, "staking not open");
+      require( msg.sender == ownerOf(tokenId) || msg.sender == owner(),"caller must be owner of token or contract owner");
+      require(tokensLastStakedAt[tokenId] == 0, "already staking");
+      tokensLastStakedAt[tokenId] = block.timestamp;
+    }
+
+    function unstake(uint256 tokenId) public {
+      require( msg.sender == ownerOf(tokenId) || msg.sender == owner(), "caller must be owner of token or contract owner");
+      require(tokensLastStakedAt[tokenId] > 0, "not staking");
+      tokensLastStakedAt[tokenId] = 0;
+    }
+
+    function setEnableStake(bool b) external onlyOwner {
+      enableStake = b;
+    }
+
+    function kickFromStake(uint256 tokenId) external onlyOwner {
+      require(tokensLastStakedAt[tokenId] > 0, "not staking");
+      tokensLastStakedAt[tokenId] = 0;
+    }
+
+    function lock(address unlocker, uint256 id) public virtual override{
+      require(tokensLastStakedAt[id] == 0, "cannot lock while staking");
+      super.lock(unlocker, id); 
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override {
+        require( tokensLastStakedAt[tokenId] == 0, "Cannot transfer staked token" );
+        super.transferFrom(from, to, tokenId);
+    }
+    
 
 
 }
