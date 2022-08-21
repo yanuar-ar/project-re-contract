@@ -26,7 +26,7 @@ describe('Project Re: testing', () => {
     });
 
     it('devMint should minted by owner', async () => {
-      await expect(await nftContract.devMint(1)).to.be.reverted;
+      expect(await nftContract.devMint(1));
     });
 
     it('devMint should reverted by non owner', async () => {
