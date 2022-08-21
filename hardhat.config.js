@@ -1,15 +1,16 @@
-require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
-require("@nomiclabs/hardhat-ethers");
-require("hardhat-abi-exporter");
-require("@nomiclabs/hardhat-etherscan");
-require("./tasks");
+require('@nomicfoundation/hardhat-toolbox');
+require('dotenv').config();
+require('hardhat-abi-exporter');
+require('@nomiclabs/hardhat-etherscan');
+require('solidity-coverage');
+require('./tasks');
+require('hardhat-gas-reporter');
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
 module.exports = {
   solidity: {
-    version: "0.8.15",
+    version: '0.8.15',
     settings: {
       optimizer: {
         enabled: true,
@@ -17,7 +18,7 @@ module.exports = {
       },
     },
   },
-  defaultNetwork: "ganache",
+  defaultNetwork: 'hardhat',
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_PROJECT_ID}`,
@@ -43,7 +44,14 @@ module.exports = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   abiExporter: {
-    path: "./abi",
+    path: './abi',
     clear: true,
+  },
+  gasReporter: {
+    enabled: !process.env.CI,
+    currency: 'USD',
+    gasPrice: 30,
+    src: 'contracts',
+    coinmarketcap: '7643dfc7-a58f-46af-8314-2db32bdd18ba',
   },
 };

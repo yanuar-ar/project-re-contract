@@ -36,7 +36,7 @@ contract ProjectRe is ERC721ALockable, ERC2981, Ownable {
     mapping(address => uint256) public whitelistMintData;
     mapping(address => uint256) public publicMintData;
 
-    constructor() ERC721A('Project Re', 'PRE') {
+    constructor() ERC721A('Project Re:', 'PRE') {
         _setDefaultRoyalty(msg.sender, 500);
     }
 

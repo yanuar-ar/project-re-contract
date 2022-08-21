@@ -1,7 +1,7 @@
 {
   "devDependencies": {
     "@ethersproject/providers": "^5.4.7",
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.3",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@nomiclabs/hardhat-ethers": "^2.1.0",
@@ -16,7 +16,6 @@
     "chai": "^4.2.0",
     "dotenv": "^16.0.1",
     "erc721a": "^4.2.0",
-    "ethereum-waffle": "^3.4.4",
     "ethers": "^5.4.7",
     "hardhat": "^2.10.1",
     "hardhat-abi-exporter": "^2.10.0",
@@ -30,7 +29,8 @@
   },
   "scripts": {
     "build": "npx hardhat compile",
-    "deploy": "npx hardhat deploy"
+    "deploy": "npx hardhat deploy",
+    "test": "npx hardhat test"
   },
   "dependencies": {
     "keccak256": "^1.0.6",
